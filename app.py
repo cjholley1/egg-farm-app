@@ -12,7 +12,17 @@ st.set_page_config(page_title="Egg Farm Dashboard", page_icon="🥚", layout="wi
 # --- GOOGLE SHEETS CONNECTION ---
 @st.cache_resource
 def get_connection():
-    gc = gspread.service_account(filename='credentials.json')
+    # If we are on the cloud, use st.secrets
+    if "gcp_service_account" in st.secrets:
+        # Create a dictionary from the secrets
+        creds_dict = dict(st.secrets["gcp_service_account"])
+        # Use service_account_from_dict instead of filename
+        gc = gspread.service_account_from_dict(creds_dict)
+    
+    # If we are on your laptop, use the file
+    else:
+        gc = gspread.service_account(filename='credentials.json')
+        
     sh = gc.open("Egg Farm Database")
     return sh
 
